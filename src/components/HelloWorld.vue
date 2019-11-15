@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <h1 @click="toast('提示信息')">{{ msg }}</h1>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
@@ -31,10 +31,16 @@
 </template>
 
 <script>
+  import { Toast } from 'mint-ui';
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  methods:{
+    toast(s){
+      Toast(s);
+    }
   }
 }
 </script>
