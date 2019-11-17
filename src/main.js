@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import App from './App.vue'
-import MintUI from 'mint-ui'
-import 'mint-ui/lib/style.css'
 import router from './router'
 import axios from 'axios'
 import QS from 'qs'
@@ -11,9 +9,9 @@ Vue.use(router)
 
 Vue.$router = router;
 
-Vue.config.productionTip = false
+  Vue.config.productionTip = false
 
-axios.defaults.baseURL = 'http://localhost:8080/novel/';
+axios.defaults.baseURL = 'http://122.51.85.71:8081/novel/';
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8'
 axios.defaults.withCredentials=true
 Vue.prototype.$ajax = axios

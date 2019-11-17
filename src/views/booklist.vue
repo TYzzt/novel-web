@@ -3,8 +3,19 @@
 </template>
 
 <script>
+    import axios from 'axios';
+
     export default {
-        name: "booklist"
+        name: "booklist",
+        mounted() {
+            axios.get({
+                url:'/novelBook/book/list NovleBookController.java '
+            }).then(res=>{
+                // eslint-disable-next-line no-console
+                console.log(res);
+            })
+
+        }
     }
 </script>
 
