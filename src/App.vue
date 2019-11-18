@@ -8,7 +8,10 @@
 export default {
   name: 'app',
   mounted(){
-    this.$router.replace({path: '/booklist'})//
+    // eslint-disable-next-line no-console
+    if (this.$router.app._route.name == null) {
+      this.$router.replace({path: '/booklist'});//
+    }
   }
 }
 </script>

@@ -1,18 +1,30 @@
 <template>
-    <h1>booklist</h1>
+    <div>
+        <h1>booklist</h1>
+        <ul>
+            <li v-for="item in booklist" :key="item.id">
+                <router-link :to="'/bookcontent/'+item.id"> {{ item.bookName }}</router-link>
+            </li>
+        </ul>
+    </div>
 </template>
-
 <script>
     import axios from 'axios';
-
     export default {
         name: "booklist",
+        data(){
+          return{
+              booklist:[]
+          }
+        },
         mounted() {
-            axios.get({
-                url:'/novelBook/book/list NovleBookController.java '
+            const _this = this;
+            axios({
+                url:'/novelBook/book/list'
             }).then(res=>{
-                // eslint-disable-next-line no-console
-                console.log(res);
+                if (res.data.state === 'success') {
+                    _this.booklist = res.data.obj;
+                }
             })
 
         }

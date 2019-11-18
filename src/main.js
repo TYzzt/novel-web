@@ -4,12 +4,11 @@ import router from './router'
 import axios from 'axios'
 import QS from 'qs'
 
-Vue.use(MintUI)
 Vue.use(router)
 
 Vue.$router = router;
 
-  Vue.config.productionTip = false
+Vue.config.productionTip = false
 
 axios.defaults.baseURL = 'http://122.51.85.71:8081/novel/';
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8'

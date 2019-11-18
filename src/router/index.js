@@ -13,14 +13,14 @@ export const defaultRouterMap = [
         name: 'booklist',
     },
     {
-        path: '/bookcontent',
+        path: '/bookcontent/:id',
         component: bookcontent,
         name: 'bookcontent',
     },
 ];
 
 export default new Router({
-    // mode: 'history',//去掉 # url锚点
+    mode: 'hash',//去掉 # url锚点
     routes: defaultRouterMap
 });
 
