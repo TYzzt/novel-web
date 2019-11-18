@@ -1,6 +1,8 @@
 <template>
     <div>
-        <h1>booklist</h1>
+        <div>
+            <strong>书,ineedthis</strong>
+        </div>
         <ul>
             <li v-for="item in booklist" :key="item.id">
                 <router-link :to="'/bookcontent/'+item.id"> {{ item.bookName }}</router-link>

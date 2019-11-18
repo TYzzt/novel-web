@@ -7,10 +7,11 @@ const booklist = () => import('@/views/booklist.vue');
 Vue.use(Router);
 
 export const defaultRouterMap = [
+    { path: '/', redirect: '/index' },
     {
-        path: '/booklist',
+        path: '/index',
         component: booklist,
-        name: 'booklist',
+        name: 'index',
     },
     {
         path: '/bookcontent/:id',

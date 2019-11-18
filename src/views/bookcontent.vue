@@ -1,12 +1,14 @@
 <template>
-    <div :style="'background:'+color+';font-size:'+fontSize+'px'">
-        <h3>bookcontent</h3>
+    <div :style="'background:'+color+';font-size:'+fontSize+'px;wdith:100%'">
+        <div>
+            <strong>书,ineedthis</strong>
+        </div>
         背景色:<input v-model="color"/>
         字体:<input v-model="fontSize"/>
-        <select name="public-choice" v-model="contentId" @change="getCouponSelected($index)">
+        <select name="public-choice" v-model="contentId" @change="getCouponSelected($event)">
             <option :value="item.id" :key="item.id" v-for="item in bookcontentList" >{{item.title}}</option>
         </select>
-        <div class="content" v-if="contentId">
+        <div class="content" v-if="content">
             <p v-html='content.content'>
             </p>
             <button @click="pre">上一章</button>
@@ -42,9 +44,13 @@
             })
         },
         methods:{
-            getCouponSelected(i){
+            getCouponSelected(e,i){
+                if (!i) {
+                    i = e.target.options.selectedIndex;
+                }
                 const _this = this;
                 _this.contentIndex = i;
+                _this.contentId = _this.bookcontentList[i].id;
                 axios({
                     url:'/novelBook/content/'+_this.contentId
                 }).then(res=>{
@@ -57,7 +63,8 @@
                 let i = this.contentIndex + 1;
                 if (this.bookcontentList[i]) {
                     this.contentId = this.bookcontentList[i].id;
-                    this.getCouponSelected(i);
+                    this.getCouponSelected(null,i);
+                    document.documentElement.scrollTop = document.body.scrollTop = 0;
                 }else {
                     alert("无");
                 }
@@ -66,7 +73,8 @@
                 let i = this.contentIndex - 1;
                 if (this.bookcontentList[i]) {
                     this.contentId = this.bookcontentList[i].id;
-                    this.getCouponSelected(i);
+                    this.getCouponSelected(null,i);
+                    document.documentElement.scrollTop = document.body.scrollTop = 0;
                 }else {
                     alert("无");
                 }
@@ -76,5 +84,15 @@
 </script>
 
 <style scoped>
-
+.content{
+    overflow-y: auto;
+}
+    input{
+        background-color:transparent;
+        border-color:#2c3e50;
+    }
+    select{
+        background-color:transparent;
+        border-color:#2c3e50;
+    }
 </style>
