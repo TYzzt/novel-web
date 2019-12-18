@@ -1,25 +1,31 @@
 <template>
-    <div :style="'background:'+color+';font-size:'+fontSize+'px;wdith:100%'">
+    <div :style="'background:'+color+';font-size:'+fontSize+'px;wdith:100%;'">
         <div>
-            <strong>书,ineedthis</strong>
-        <p>
-            背景色:<input v-model="color"/>
-        </p>
-            <p>
-            字体:<input v-model="fontSize"/>
-             </p>
+            <div>
+                <strong>{{bookContentBean.title}}</strong>
+            </div>
         </div>
-
-
-        字体:<input v-model="fontSize"/>
-        <select name="public-choice" v-model="contentId" @change="getCouponSelected($event)">
-            <option :value="item.id" :key="item.id" v-for="item in bookcontentList" >{{item.title}}</option>
-        </select>
-        <div class="content" v-if="content">
-            <p v-html='content.content'>
+        <div class="colorConfig">
+            <p>
+                背景色:<input v-model="color" @change="changeColor"/>
             </p>
-            <button @click="pre" style="margin-right: 5px">上一章 </button>
-            <button @click="next"> 下一章</button>
+            <p>
+                字体:<input v-model="fontSize" @change="changeColor"/>
+            </p>
+        </div>
+        <div class="content" v-if="bookContentBean">
+            <div class="qhContent">
+                <button class="pre" @click="pre">上一章 </button>
+                <button @click="toMl('/bookcontentlist/'+bookContentBean.bookId+'/'+bookName)">目录</button>
+                <button class="next" @click="next"> 下一章</button>
+            </div>
+            <p v-html='bookContentBean.content'>
+            </p>
+            <div class="qhContent">
+                <button class="pre" @click="pre" style="margin-right: 5px">上一章 </button>
+                <button @click="toMl('/bookcontentlist/'+bookContentBean.bookId+'/'+bookName)">目录</button>
+                <button class="next" @click="next"> 下一章</button>
+            </div>
         </div>
     </div>
 </template>
@@ -31,68 +37,99 @@
         name: "bookcontent",
         data(){
             return{
-                bookId:null,
-                bookcontentList:[],
-                contentId:null,
-                content:null,
-                contentIndex:0,
+                bookContentId:null,
+                bookContentBean:{},
                 color:'grey',
-                fontSize:'20'
+                fontSize:'20',
+                bookName:''
             }
         },
         mounted() {
-            const _this = this;
-            _this.bookId = _this.$route.params.id
-            axios({
-                url:'/novelBook/contentList/'+_this.bookId
-            }).then(res=>{
-                if (res.data.state === 'success') {
-                    _this.bookcontentList = res.data.obj;
-                    let cookieI = Cookies.get('bookcontentI' + _this.bookId);
-                    if (cookieI) {
-                        _this.getCouponSelected(null, cookieI);
-                    }
+            this.bookContentId = this.$route.params.contentid
+            this.bookName = this.$route.params.name
+            this.getCouponSelected();
+
+            let cookieI = Cookies.get('bookcontentColor');
+            // eslint-disable-next-line no-console
+            console.log(cookieI);
+            if (cookieI) {
+                cookieI = JSON.parse(cookieI);
+                if (cookieI.color) {
+                    this.color = cookieI.color;
+                    this.fontSize = cookieI.fontSize
                 }
-            })
+            }
+
         },
-        methods:{
-            getCouponSelected(e,i){
-                if (!i) {
-                    i = e.target.options.selectedIndex;
-                }
+        watch: {
+            $route(){
+                this.bookContentId = this.$route.params.contentid
+                this.bookName = this.$route.params.name
+            },
+            bookContentId() {
+                this.getCouponSelected();
+        }},
+            methods:{
+            getCouponSelected(){
                 const _this = this;
-                //记录cookie
-                Cookies.set('bookcontentI'+_this.bookId, i);
-                _this.contentIndex = i;
-                _this.contentId = _this.bookcontentList[i].id;
                 axios({
-                    url:'/novelBook/content/'+_this.contentId
+                    url:'/novelBook/content/'+_this.bookContentId
                 }).then(res=>{
                     if (res.data.state === 'success') {
-                        _this.content = res.data.obj;
+                        _this.bookContentBean = res.data.obj;
                     }
                 })
             },
             next(){
-                let i = this.contentIndex + 1;
-                if (this.bookcontentList[i]) {
-                    this.contentId = this.bookcontentList[i].id;
-                    this.getCouponSelected(null,i);
-                    document.documentElement.scrollTop = document.body.scrollTop = 0;
-                }else {
-                    alert("无");
-                }
+                const _this = this;
+                axios({
+                    url:'/novelBook/nextContent/'+_this.bookContentBean.bookId+'/'+_this.bookContentBean.sortIndex
+                }).then(res=>{
+                    if (res.data.state === 'success') {
+                        if (!res.data.obj.id) {
+                            alert("没有了");
+                        }else {
+                            _this.$router.push('/bookcontent/' + res.data.obj.id + '/' + _this.bookName+'/'+res.data.obj.title).catch(() => {})
+                            document.documentElement.scrollTop = document.body.scrollTop = 0; //跳转回最上面
+                        }
+                    }
+                    // eslint-disable-next-line no-unused-vars
+                }).catch(e=>{
+                    // eslint-disable-next-line no-console
+                    console.log(e);
+                    alert("没有了");
+                })
             },
             pre(){
-                let i = this.contentIndex - 1;
-                if (this.bookcontentList[i]) {
-                    this.contentId = this.bookcontentList[i].id;
-                    this.getCouponSelected(null,i);
-                    document.documentElement.scrollTop = document.body.scrollTop = 0;
-                }else {
-                    alert("无");
+                const _this = this;
+                axios({
+                    url:'/novelBook/preContent/'+_this.bookContentBean.bookId+'/'+_this.bookContentBean.sortIndex
+                }).then(res=>{
+                    if (res.data.state === 'success') {
+                        if (!res.data.obj.id) {
+                            alert("没有了");
+                        }else {
+                            _this.$router.push('/bookcontent/' + res.data.obj.id + '/' + _this.bookName+'/'+res.data.obj.title).catch(() => {})
+                            document.documentElement.scrollTop = document.body.scrollTop = 0; //跳转回最上面
+                        }
+                    }
+                    // eslint-disable-next-line no-unused-vars
+                }).catch(e=>{
+                    // eslint-disable-next-line no-console
+                    console.log(e);
+                    alert("没有了");
+                })
+            },
+            changeColor(){
+                const _this = this;
+                Cookies.set('bookcontentColor',{
+                    color:_this.color,
+                    fontSize:_this.fontSize,
+                })
+        },
+                toMl(to){
+                    this.$router.push(to).catch(() => {})
                 }
-            }
         }
     }
 </script>
@@ -101,6 +138,9 @@
 .content{
     overflow-y: auto;
     margin-bottom: 20px;
+    min-height: 500px;
+    margin-left:8px;
+    margin-right:8px;
 }
     input{
         background-color:transparent;
@@ -122,4 +162,15 @@ input[type=datetime-local]{
     outline:none;
     border:none;
 }
+
+    .colorConfig p{
+       font-size: small;
+    }
+
+    .qhContent .pre{
+        margin-right: 20px;
+    }
+    .qhContent .next{
+        margin-left: 20px;
+    }
 </style>
