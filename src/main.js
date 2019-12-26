@@ -3,18 +3,21 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import QS from 'qs'
+import Mint from 'mint-ui';
+import 'mint-ui/lib/style.css'
+import { Toast } from 'mint-ui';
 
+Vue.use(Mint);
 Vue.use(router)
-
 Vue.$router = router;
 
 Vue.config.productionTip = false
-
-// axios.defaults.baseURL = 'http://122.51.85.71:8081/novel/';
-axios.defaults.baseURL = 'http://127.0.0.1:8080/novel/';
+axios.defaults.baseURL = 'http://122.51.85.71:8080/novel/';
+// axios.defaults.baseURL = 'http://127.0.0.1:8080/novel/';
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8'
 axios.defaults.withCredentials=true
-Vue.prototype.$ajax = axios
+Vue.prototype.$ajax = axios;
+Vue.prototype.$Toast=Toast;
 
 Vue.config.productionTip = false
 

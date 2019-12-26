@@ -4,6 +4,7 @@ import Router from 'vue-router';
 const bookcontent = () => import('@/views/bookcontent.vue');
 const booklist = () => import('@/views/booklist.vue');
 const bookcontentlist = () => import('@/views/bookcontentlist.vue');
+const newbook = () => import('@/views/newbook.vue');
 const originalPush = Router.prototype.push;
 Router.prototype.push = function push(location) {
     return originalPush.call(this, location).catch(err => err)
@@ -30,6 +31,11 @@ export const defaultRouterMap = [
         path: '/bookcontentlist/:id/:name',
         component: bookcontentlist,
         name: 'bookcontentlist',
+    },
+    {
+        path: '/newbook',
+        component: newbook,
+        name: 'newbook',
     },
 ];
 
