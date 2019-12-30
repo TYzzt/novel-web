@@ -16,8 +16,8 @@ Vue.use(Mint);
 Vue.use(router)
 
 Vue.config.productionTip = false
-// axios.defaults.baseURL = 'http://122.51.85.71:8080/novel/';
-axios.defaults.baseURL = 'http://127.0.0.1:8080/novel/';
+axios.defaults.baseURL = 'http://122.51.85.71:8080/novel/';
+// axios.defaults.baseURL = 'http://127.0.0.1:8080/novel/';
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8'
 axios.defaults.withCredentials=true
 Vue.prototype.$ajax = axios;
