@@ -4,7 +4,9 @@
                 title="novel.ineedthis"
                 right-text="新建"
                 @click-right="onClickRight"
-        />
+        >
+            <van-button slot="title" size="mini" plain style="border: 0" @click="queryBooklist" type="info" >novel.ineedthis</van-button>
+        </van-nav-bar>
         <van-search placeholder="搜索" v-model="searchValue" />
         <van-loading v-show="loading" size="24px">加载中...</van-loading>
         <van-index-bar :index-list="booklisttypes">
@@ -21,6 +23,7 @@
 </template>
 <script>
     import axios from 'axios';
+    import {n_localstorage} from "../util/localstorage.js";
     export default {
         name: "booklist",
         data(){
@@ -55,12 +58,16 @@
                 }).then(res=>{
                     if (res.data.state === 'success') {
                         let list = res.data.obj;
-                        let map = {};
-                        let listtype = [];
+                        let sc = '收藏'
+                        let map = {'收藏':[]};
+                        let listtype = [sc];
                         list.forEach(item=>{
                             item._show = true
+                            if (item.isCollection && item.isCollection === 1) {
+                                map[sc].push(item);
+                            }
                             if(!item.category){
-                                item.category = '**'
+                                item.category = '**';
                             }
                             if (!map[item.category]) {
                                 map[item.category] = [];
@@ -70,8 +77,6 @@
                         })
                         _this.booklistmap = map;
                         _this.booklisttypes = listtype;
-                        // eslint-disable-next-line no-console
-                        console.log(map)
                     }
                 }).finally(()=>{
                     _this.loading = false;
@@ -79,8 +84,9 @@
             },
             /*跳跃到读小说页面*/
             toContentList(item){
-                let to = '/bookcontentlist/'+item.id+'/'+item.bookName
+                let to = {path:'/bookcontentlist/'+item.id+'/'+item.bookName}
                 this.loading = true;
+                n_localstorage.set('book',item)
                 this.$router.push(to).catch(() => {})
                 this.loading = false;
             },

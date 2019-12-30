@@ -6,8 +6,10 @@
                 left-arrow
                 @click-left="onClickLeft"
         >
-            <van-button plain hairline type="info"  size="mini" @click="contentReversal" slot="right" >章节颠倒</van-button>
-            <van-button plain hairline type="info"  size="mini" @click="updateNovelBookFromZhwenpg" slot="right" >更新</van-button>
+            <van-button plain hairline type="info"  size="mini" @click="actionShow=!actionShow" slot="right" >操作</van-button>
+<!--            <van-button plain hairline type="info"  size="mini" @click="contentReversal" slot="right" >收藏</van-button>-->
+         <!--   <van-button plain hairline type="info"  size="mini" @click="contentReversal" slot="right" >章节颠倒</van-button>
+            <van-button plain hairline type="info"  size="mini" @click="updateNovelBookFromZhwenpg" slot="right" >更新</van-button>-->
         </van-nav-bar>
         <van-loading v-show="loading" size="24px">加载中...</van-loading>
 
@@ -19,13 +21,14 @@
                 </van-cell>
             </template>
         </van-index-bar>
-
+        <van-action-sheet  v-model="actionShow" :actions="actions" @select="actionSelect" />
     </div>
 </template>
 <script>
     import axios from "axios";
     import {n_localstorage} from "../util/localstorage.js";
-
+    import {pageUrl} from "../util/pageUrl.js";
+    let deleteContentCount = 0;
     export default {
         name: "bookcontentlist",
         data(){
@@ -35,10 +38,20 @@
                 bookcontentlistmaptype:[],
                 bookName:'',
                 bookId:'',
+                actionShow:false, //弹出菜单
+                actions:[
+                    { name: '更新',type:'update' },
+                    { name: '清除章节',type:'deleteContent' },
+                    { name: '章节颠倒',type:'contentReversal' },
+                    { name: '收藏', type:'updateCollection'}
+                ],
+
             }
         },
         mounted() {
             const _this = this;
+            // eslint-disable-next-line no-console
+            console.log(_this.$route.params);
             _this.bookId = _this.$route.params.id
             _this.bookName = _this.$route.params.name
 
@@ -103,6 +116,8 @@
                 axios({
                     url:'reptile/updateNovelBookFromZhwenpg?bookId='+id,
                 }).then(res=>{
+                    // eslint-disable-next-line no-console
+                    console.log(res)
                     if (res.data === -1) {
                         _this.$Toast('服务异常')
                     }else if (res.data === -2) {
@@ -133,6 +148,70 @@
                         _this.$Toast('章节顺序颠倒')
                         _this.loading = true;
                         _this.queryList();
+                    }
+                }).catch(()=>{
+                    _this.$Toast('服务异常')
+                }).finally(()=>{
+                    _this.loading = false;
+                })
+            },
+            actionSelect(item){
+                const _this = this;
+                if (item.type==='update') {
+                    _this.updateNovelBookFromZhwenpg();
+                }else if (item.type === 'contentReversal') {
+                    _this.contentReversal();
+                }else if (item.type === 'updateCollection') {
+                    _this.updateCollection();
+                }else if (item.type === 'deleteContent' && ++deleteContentCount>10) {
+                    _this.deleteContent();
+                }
+                _this.actionShow = false;
+            },
+            updateCollection(){
+                const _this = this;
+                let book = n_localstorage.get('book');
+                // eslint-disable-next-line no-console
+                console.log(book);
+                let sc = 1;
+                if (book && book.id==_this.bookId) {
+                    if (book.isCollection && book.isCollection===1) {
+                        sc = 0;
+                    }
+                }
+                _this.loading = true;
+                axios({
+                    url:pageUrl.updateNovelBook,
+                    params:{
+                        id:_this.bookId,
+                        isCollection:sc
+                    }
+                }).then(res=>{
+                    if (res.data.state === 'success') {
+                        if (sc === 1) {
+                            _this.$Toast('收藏成功')
+                        }else {
+                            _this.$Toast('取消收藏成功')
+                        }
+                    }
+                }).catch(()=>{
+                    _this.$Toast('服务异常')
+                }).finally(()=>{
+                    _this.loading = false;
+                })
+            },
+            deleteContent(){
+                const _this = this;
+                _this.loading = true;
+                axios({
+                    url:pageUrl.deleteContentsByBookId,
+                    params:{
+                        bookId:_this.bookId,
+                    }
+                }).then(res=>{
+                    if (res.data.state === 'success') {
+                        n_localstorage.remove('contentlist')
+                        _this.$router.go(-1);
                     }
                 }).catch(()=>{
                     _this.$Toast('服务异常')

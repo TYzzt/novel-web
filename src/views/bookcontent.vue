@@ -53,6 +53,9 @@
 </template>
 
 <script>
+
+    let nextRecord = null;
+
     import axios from 'axios';
     import Cookies from 'js-cookie'
     export default {
@@ -64,7 +67,6 @@
                 color:'grey',
                 fontSize:'20',
                 bookName:'',
-                contentlist:[],
                 contentLoading:false,
                 finished:false,
                 showOverlay:false,//遮罩
@@ -73,7 +75,7 @@
         mounted() {
             this.bookContentId = this.$route.params.contentid
             this.bookName = this.$route.params.name
-            // this.getCouponSelected();
+             this.getCouponSelected();
 
             let cookieI = Cookies.get('bookcontentColor'); //记录背景颜色信息
             // eslint-disable-next-line no-console
@@ -88,13 +90,14 @@
 
         },
         watch: {
-            $route(){
+  /*          $route(){
                 this.bookContentId = this.$route.params.contentid
                 this.bookName = this.$route.params.name
             },
             bookContentId() {
                 this.getCouponSelected();
-        }},
+            }*/
+        },
             methods:{
             /*获取内容*/
             getCouponSelected(){
@@ -105,36 +108,59 @@
                 }).then(res=>{
                     if (res.data.state === 'success') {
                         _this.bookContentBean = res.data.obj;
-                        _this.contentlist.push(res.data.obj);
+                        _this.getNext();
                     }
                 }).finally(()=>{
                     _this.showOverlay = false;
                 })
             },
-            next(){
+            getNext(){
+                nextRecord = null;
                 const _this = this;
-                _this.showOverlay = true;
                 axios({
                     url:'/novelBook/nextContent/'+_this.bookContentBean.bookId+'/'+_this.bookContentBean.sortIndex
                 }).then(res=>{
                     if (res.data.state === 'success') {
-                        if (!res.data.obj.id) {
-                            alert("没有了");
-                        }else {
-                            _this.$router.push('/bookcontent/' + res.data.obj.id + '/' + _this.bookName+'/'+res.data.obj.title).catch(() => {})
-                            document.documentElement.scrollTop = document.body.scrollTop = 0; //跳转回最上面
+                        if (res.data.obj.id) {
+                            nextRecord = res.data.obj
                         }
                     }
-                    // eslint-disable-next-line no-unused-vars
-                }).catch(e=>{
-                    // eslint-disable-next-line no-console
-                    console.log(e);
-                    _this.$Toast("没有了");
-                }).finally(()=>{
-                    _this.showOverlay = false;
                 })
             },
+            next(){
+                const _this = this;
+                if (nextRecord) {
+                    _this.bookContentBean = nextRecord;
+                    _this.bookContentId =nextRecord.id;
+                    _this.getNext();
+                }else {
+                    _this.showOverlay = true;
+                    axios({
+                        url:'/novelBook/nextContent/'+_this.bookContentBean.bookId+'/'+_this.bookContentBean.sortIndex
+                    }).then(res=>{
+                        if (res.data.state === 'success') {
+                            if (!res.data.obj.id) {
+                                _this.$Toast("没有了");
+                            }else {
+                                _this.bookContentBean = res.data.obj;
+                                _this.bookContentId = res.data.obj.id;
+                                _this.getNext();
+                                _this.$router.push('/bookcontent/' + res.data.obj.id + '/' + _this.bookName+'/'+res.data.obj.title).catch(() => {})
+                                document.documentElement.scrollTop = document.body.scrollTop = 0; //跳转回最上面
+                            }
+                        }
+                        // eslint-disable-next-line no-unused-vars
+                    }).catch(e=>{
+                        // eslint-disable-next-line no-console
+                        console.log(e);
+                        _this.$Toast("没有了");
+                    }).finally(()=>{
+                        _this.showOverlay = false;
+                    })
+                }
+            },
             pre(){
+                nextRecord = null;
                 const _this = this;
                 _this.showOverlay = true;
                 axios({
@@ -144,6 +170,8 @@
                         if (!res.data.obj.id) {
                             _this.$Toast("没有了");
                         }else {
+                            _this.bookContentBean = res.data.obj;
+                            _this.bookContentId = res.data.obj.id;
                             _this.$router.push('/bookcontent/' + res.data.obj.id + '/' + _this.bookName+'/'+res.data.obj.title).catch(() => {})
                             document.documentElement.scrollTop = document.body.scrollTop = 0; //跳转回最上面
                         }
