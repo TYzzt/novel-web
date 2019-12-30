@@ -43,8 +43,6 @@
             _this.bookName = _this.$route.params.name
 
             let cookieI = n_localstorage.get('contentlist'); // => 'value'
-            // eslint-disable-next-line no-console
-            console.log(cookieI);
             if (cookieI && cookieI.length>0) {
                 if (cookieI[0].bookId != _this.bookId) {
                     _this.queryList();
