@@ -1,27 +1,21 @@
 <template>
     <div>
-
-    <!--    <ul>
-            <li v-for="item in booklist" :key="item.id">
-                <router-link :to="'/bookcontentlist/'+item.id+'/'+item.bookName"> {{ item.bookName }}</router-link> <a href="#" @click="updateNovelBookFromZhwenpg(item.id)">更新</a>
-            </li>
-        </ul>-->
-        <mt-header title="novel.ineedthis">
-            <router-link to="/newbook" slot="right">
-                <mt-button >新建</mt-button>
-            </router-link>
-        </mt-header>
-        <mt-index-list>
-            <mt-index-section :index="key" v-for="(items,key) in booklistmap" :key="key" >
-                <mt-cell :title="item.bookName" v-for="item in items" :key="item.id" >
-                    <mt-button  type="default" @click="toContentList(item)" size="small">开始阅读</mt-button>
-                    <mt-button  type="default" @click="deleteNovelBook(item.id)" size="small">删除</mt-button>
-<!--                    <mt-button slot type="default" @click="updateNovelBookFromZhwenpg(item.id)" size="small">更新</mt-button>-->
-                </mt-cell>
-            </mt-index-section>
-        </mt-index-list>
+        <van-nav-bar
+                title="novel.ineedthis"
+                right-text="新建"
+                @click-right="onClickRight"
+        />
+        <van-index-bar :index-list="booklisttypes">
+            <template v-for="(items,key) in booklistmap" >
+                <van-index-anchor :index="key" :key="key">{{key}}
+                </van-index-anchor>
+                <van-cell :title="item.bookName" v-for="item in items" :key="item.id" >
+                    <van-button  type="default" @click="toContentList(item)" size="small">开始阅读</van-button>
+                    <van-button  type="default" @click="deleteNovelBook(item.id)" size="small">删除</van-button>
+                </van-cell>
+            </template>
+        </van-index-bar>
     </div>
-
 </template>
 <script>
     import axios from 'axios';
@@ -30,7 +24,8 @@
         data(){
           return{
               booklist:[],
-              booklistmap:{}
+              booklistmap:{},
+              booklisttypes:[],
           }
         },
         mounted() {
@@ -41,16 +36,19 @@
                 if (res.data.state === 'success') {
                     let list = res.data.obj;
                     let map = {};
+                    let listtype = [];
                     list.forEach(item=>{
                         if(!item.category){
                             item.category = '**'
                         }
                         if (!map[item.category]) {
                             map[item.category] = [];
+                            listtype.push(item.category);
                         }
                         map[item.category].push(item);
                     })
                     _this.booklistmap = map;
+                    _this.booklisttypes = listtype;
                     // eslint-disable-next-line no-console
                     console.log(map)
                 }
@@ -95,6 +93,9 @@
                         message: '服务异常',
                     });
                 })
+            },
+            onClickRight() {
+                this.$router.push('/newbook').catch(() => {})
             }
         }
     }

@@ -5,11 +5,15 @@ import axios from 'axios'
 import QS from 'qs'
 import Mint from 'mint-ui';
 import 'mint-ui/lib/style.css'
-import { Toast } from 'mint-ui';
+import { Toast } from 'vant';
+
+import Vant from 'vant';
+import 'vant/lib/index.css';
+
+Vue.use(Vant);
 
 Vue.use(Mint);
 Vue.use(router)
-Vue.$router = router;
 
 Vue.config.productionTip = false
 axios.defaults.baseURL = 'http://122.51.85.71:8080/novel/';
