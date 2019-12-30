@@ -45,7 +45,7 @@
             let cookieI = n_localstorage.get('contentlist'); // => 'value'
             // eslint-disable-next-line no-console
             console.log(cookieI);
-            if (cookieI && cookieI!=[]) {
+            if (cookieI && cookieI.length>0) {
                 if (cookieI[0].bookId != _this.bookId) {
                     _this.queryList();
                 }else {
@@ -121,7 +121,7 @@
                 })
             },
             onClickLeft(){
-                this.$router.go(-1)
+                this.$router.push('/')
             },
             /*颠倒顺序*/
             contentReversal(){
@@ -133,6 +133,8 @@
                 }).then(res=>{
                     if (res.data.state === 'success') {
                         _this.$Toast('章节顺序颠倒')
+                        _this.loading = true;
+                        _this.queryList();
                     }
                 }).catch(()=>{
                     _this.$Toast('服务异常')

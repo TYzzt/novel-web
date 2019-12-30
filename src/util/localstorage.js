@@ -7,6 +7,7 @@ export const n_localstorage ={
         * @ param {String}     expired 过期时间，以分钟为单位，非必须
         * @ 由@IT·平头哥联盟-首席填坑官∙苏南 分享,交流：912594095
         */
+        this.remove(key);
         localStorage.setItem(key, JSON.stringify(value));
         if (expired){
             localStorage.setItem(key+'__expires__',Date.now() + 1000*60*expired)
