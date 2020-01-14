@@ -6,6 +6,7 @@
                 left-arrow
                 @click-left="onClickLeft"
         >
+            <van-icon name="ascending" slot="right" style="margin-right: 2px;" size="25" @click="reverseShow"/>
             <van-button plain hairline type="info"  size="mini" @click="actionShow=!actionShow" slot="right" >操作</van-button>
 <!--            <van-button plain hairline type="info"  size="mini" @click="contentReversal" slot="right" >收藏</van-button>-->
          <!--   <van-button plain hairline type="info"  size="mini" @click="contentReversal" slot="right" >章节颠倒</van-button>
@@ -34,6 +35,7 @@
         data(){
             return{
                 loading:true,
+                bookcontentlist:[],
                 bookcontentlistmap:{},
                 bookcontentlistmaptype:[],
                 bookName:'',
@@ -45,13 +47,11 @@
                     { name: '章节颠倒',type:'contentReversal' },
                     { name: '收藏', type:'updateCollection'}
                 ],
-
+                sortZx:true, //正序
             }
         },
         mounted() {
             const _this = this;
-            // eslint-disable-next-line no-console
-            console.log(_this.$route.params);
             _this.bookId = _this.$route.params.id
             _this.bookName = _this.$route.params.name
 
@@ -60,14 +60,20 @@
                 if (cookieI[0].bookId != _this.bookId) {
                     _this.queryList();
                 }else {
-                    _this.showContentList(cookieI);
+                    _this.bookcontentlist = cookieI;
+                    _this.showContentList();
                 }
             }else {
                 _this.queryList();
             }
         },
         methods:{
-            showContentList(list){
+            reverseShow() {
+                this.sortZx = !this.sortZx;
+                this.showContentList();
+            },
+            showContentList(){
+                let list = JSON.parse(JSON.stringify(this.bookcontentlist));
                 this.loading = false;
                 let map = {}
                 let indextype = ['0'];
@@ -79,6 +85,10 @@
                     let index = '0-'+size
                     indextype = [index]
                     map[index] = []
+                    if (!this.sortZx) {
+                        list.reverse();
+                    }
+
                     list.forEach(item=>{
                         i += 1;
                         if (i >size) {
@@ -102,7 +112,8 @@
                     if (res.data.state === 'success') {
                         //记录目录数据
                         n_localstorage.set('contentlist', res.data.obj,120);
-                        _this.showContentList(res.data.obj)
+                        _this.bookcontentlist = res.data.obj
+                        _this.showContentList()
                     }
                 }).finally(()=>{
                     _this.loading = false;
@@ -165,6 +176,7 @@
                     _this.updateCollection();
                 }else if (item.type === 'deleteContent' && ++deleteContentCount>10) {
                     _this.deleteContent();
+                    deleteContentCount = 0;
                 }
                 _this.actionShow = false;
             },

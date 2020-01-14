@@ -14,10 +14,13 @@ Vue.use(Vant);
 
 Vue.use(Mint);
 Vue.use(router)
+Vue.use(require('vue-wechat-title')) /*title*/
 
 Vue.config.productionTip = false
-axios.defaults.baseURL = 'http://122.51.85.71:8080/novel/';
-// axios.defaults.baseURL = 'http://127.0.0.1:8080/novel/';
+//axios.defaults.baseURL = 'https://novel.ineedthis.cn/novel/';
+// eslint-disable-next-line no-console
+// console.log(process.env)
+axios.defaults.baseURL = process.env.VUE_APP_WEB_BASEPATH;
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8'
 axios.defaults.withCredentials=true
 Vue.prototype.$ajax = axios;
@@ -32,6 +35,17 @@ axios.interceptors.request.use(config => {
   return config
 }, error => {
   return Promise.reject(error)
+});
+
+
+// 根据路由设置标题
+router.afterEach((to) => {
+  /*路由发生改变修改页面的title */
+  if (to.meta.title) {
+    document.title = to.meta.title
+  } else {
+    document.title = 'novel.ineedthis'
+  }
 });
 
 new Vue({

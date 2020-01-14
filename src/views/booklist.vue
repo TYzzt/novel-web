@@ -1,7 +1,6 @@
 <template>
     <div>
         <van-nav-bar
-                title="novel.ineedthis"
                 right-text="新建"
                 @click-right="onClickRight"
         >

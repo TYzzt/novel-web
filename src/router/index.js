@@ -22,6 +22,7 @@ export const defaultRouterMap = [
         component: booklist,
         name: 'index',
         meta: {
+            title:'首页',
             keepAlive: true // 需要被缓存
         }
     },
@@ -34,6 +35,9 @@ export const defaultRouterMap = [
         path: '/bookcontentlist/:id/:name',
         component: bookcontentlist,
         name: 'bookcontentlist',
+        meta: {
+            title:'目录',
+        }
     },
     {
         path: '/newbook',

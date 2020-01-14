@@ -15,7 +15,8 @@
 export default {
   name: 'app',
   mounted(){
-
+      document.getElementById('app').style.display = 'block';
+      document.getElementById('appLoading').style.display = 'none';
   }
 }
 </script>

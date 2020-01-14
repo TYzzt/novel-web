@@ -1,5 +1,5 @@
 <template>
-    <div :style="'background:'+color+';font-size:'+fontSize+'px;wdith:100%;'">
+    <div :style="'background:'+color+';font-size:'+fontSize+'px;wdith:100%;'"  v-wechat-title="bookContentBean.title">
         <van-overlay :show="showOverlay">
             <div class="wrapper" >
                <van-loading type="spinner" />
@@ -75,7 +75,7 @@
         mounted() {
             this.bookContentId = this.$route.params.contentid
             this.bookName = this.$route.params.name
-             this.getCouponSelected();
+            this.getCouponSelected();
 
             let cookieI = Cookies.get('bookcontentColor'); //记录背景颜色信息
             // eslint-disable-next-line no-console
@@ -132,6 +132,8 @@
                 if (nextRecord) {
                     _this.bookContentBean = nextRecord;
                     _this.bookContentId =nextRecord.id;
+                    _this.$router.push('/bookcontent/' + nextRecord.id + '/' + _this.bookName+'/'+nextRecord.title).catch(() => {})
+                    document.documentElement.scrollTop = document.body.scrollTop = 0; //跳转回最上面
                     _this.getNext();
                 }else {
                     _this.showOverlay = true;
@@ -144,9 +146,9 @@
                             }else {
                                 _this.bookContentBean = res.data.obj;
                                 _this.bookContentId = res.data.obj.id;
-                                _this.getNext();
                                 _this.$router.push('/bookcontent/' + res.data.obj.id + '/' + _this.bookName+'/'+res.data.obj.title).catch(() => {})
                                 document.documentElement.scrollTop = document.body.scrollTop = 0; //跳转回最上面
+                                _this.getNext();
                             }
                         }
                         // eslint-disable-next-line no-unused-vars
