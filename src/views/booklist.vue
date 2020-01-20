@@ -2,7 +2,7 @@
     <div>
         <van-nav-bar
                 left-text="新建"
-                @left-right="onClickLeft"
+                @click-left="onClickLeft"
                 :right-text="rightClickStr"
                 @click-right="onClickRight"
         >
@@ -101,13 +101,16 @@
                 }).then(res=>{
                     if (res.data.state === 'success') {
                         let list = res.data.obj;
-                        let sc = '收藏'
-                        let map = {'收藏':[]};
-                        let listtype = [sc];
+                        let sc = '推荐',scByUser = '收藏'
+                        let map = {'收藏':[],'推荐':[]};
+                        let listtype = [scByUser,sc];
                         list.forEach(item=>{
                             item._show = true
                             if (item.isCollection && item.isCollection === 1) {
                                 map[sc].push(item);
+                            }
+                            if (item.isUserCollection && item.isUserCollection === 1) {
+                                map[scByUser].push(item);
                             }
                             if(!item.category){
                                 item.category = '**';
@@ -138,7 +141,11 @@
                 const _this = this;
                 this.loading = true;
                 axios({
-                    url:'novelBook/makeNovelBookInvaild?bookId='+id,
+                    url:pageUrl.addCollection,
+                    params:{
+                        bookId:id,
+                        type:0
+                    }
                 }).then(res=>{
                     if (res.data.obj < 0) {
                         _this.$Toast({
@@ -148,6 +155,7 @@
                         _this.$Toast({
                             message: '删除成功',
                         });
+                        _this.queryBooklist();
                     }
                 }).catch(()=>{
                     _this.$Toast({

@@ -201,18 +201,20 @@
                 let book = n_localstorage.get('book');
                 // eslint-disable-next-line no-console
                 console.log(book);
+                let url = pageUrl.addCollection;
                 let sc = 1;
-                if (book && book.id==_this.bookId) {
-                    if (book.isCollection && book.isCollection===1) {
+                if (book && book.id ===_this.bookId) {
+                    if (book.isUserCollection && book.isUserCollection===1) {
                         sc = 0;
+                        url = pageUrl.deleteCollection
                     }
                 }
                 _this.loading = true;
                 axios({
-                    url:pageUrl.updateNovelBook,
+                    url:url,
                     params:{
-                        id:_this.bookId,
-                        isCollection:sc
+                        bookId:_this.bookId,
+                        type:1
                     }
                 }).then(res=>{
                     if (res.data.state === 'success') {
