@@ -12,6 +12,16 @@
          <!--   <van-button plain hairline type="info"  size="mini" @click="contentReversal" slot="right" >章节颠倒</van-button>
             <van-button plain hairline type="info"  size="mini" @click="updateNovelBookFromZhwenpg" slot="right" >更新</van-button>-->
         </van-nav-bar>
+        <van-notice-bar
+                color="#1989fa"
+                background="#ecf9ff"
+                left-icon="info-o"
+                v-show="noticeShow"
+                mode="closeable"
+                @click="tocontentByNotice"
+        >
+           {{'继续阅读 '+noticeBean.title}}
+        </van-notice-bar>
         <van-loading v-show="loading" size="24px">加载中...</van-loading>
 
         <van-index-bar :index-list="bookcontentlistmaptype">
@@ -48,6 +58,8 @@
                     { name: '收藏', type:'updateCollection'}
                 ],
                 sortZx:true, //正序
+                noticeShow:false,
+                noticeBean:{}
             }
         },
         mounted() {
@@ -55,6 +67,9 @@
             _this.bookId = _this.$route.params.id
             _this.bookName = _this.$route.params.name
 
+            _this.queryLastRead();//查询最近阅读
+
+            //查询列表
             let cookieI = n_localstorage.get('contentlist'); // => 'value'
             if (cookieI && cookieI.length>0) {
                 if (cookieI[0].bookId != _this.bookId) {
@@ -66,6 +81,7 @@
             }else {
                 _this.queryList();
             }
+
         },
         methods:{
             reverseShow() {
@@ -230,6 +246,30 @@
                 }).finally(()=>{
                     _this.loading = false;
                 })
+            },
+            queryLastRead() {
+                const _this = this;
+                if (!_this.$simpleStore.state.userInfo) {
+                    return;
+                }
+                axios({
+                    url:pageUrl.queryLastRead,
+                    params:{
+                        bookId:_this.bookId
+                    }
+                }).then(res=>{
+                    if (res.data.state === 'success' && res.data.obj) {
+                        _this.noticeBean = res.data.obj
+                        _this.noticeShow = true;
+                    }
+                });
+            },
+            tocontentByNotice() {
+                if (this.noticeBean) {
+                    var item = this.noticeBean
+                    var to ='/bookcontent/'+item.id+'/'+this.bookName+'/'+item.title
+                    this.$router.push(to).catch(() => {})
+                }
             }
         }
     }

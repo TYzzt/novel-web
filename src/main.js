@@ -3,16 +3,16 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import QS from 'qs'
-import Mint from 'mint-ui';
-import 'mint-ui/lib/style.css'
-import { Toast } from 'vant';
-
 import Vant from 'vant';
 import 'vant/lib/index.css';
 
+import { Toast } from 'vant';
+
+import {simpleStore} from './store/simpleStore.js'
+
+
 Vue.use(Vant);
 
-Vue.use(Mint);
 Vue.use(router)
 Vue.use(require('vue-wechat-title')) /*title*/
 
@@ -25,6 +25,7 @@ axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8'
 axios.defaults.withCredentials=true
 Vue.prototype.$ajax = axios;
 Vue.prototype.$Toast=Toast;
+Vue.prototype.$simpleStore=simpleStore;
 
 Vue.config.productionTip = false
 

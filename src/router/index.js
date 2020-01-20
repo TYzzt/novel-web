@@ -5,6 +5,7 @@ const bookcontent = () => import('@/views/bookcontent.vue');
 const booklist = () => import('@/views/booklist.vue');
 const bookcontentlist = () => import('@/views/bookcontentlist.vue');
 const newbook = () => import('@/views/newbook.vue');
+const login = () => import('@/views/login.vue');
 const originalPush = Router.prototype.push;
 Router.prototype.push = function push(location) {
     return originalPush.call(this, location).catch(err => err)
@@ -22,7 +23,7 @@ export const defaultRouterMap = [
         component: booklist,
         name: 'index',
         meta: {
-            title:'首页',
+            title:'想看点小说',
             keepAlive: true // 需要被缓存
         }
     },
@@ -42,7 +43,12 @@ export const defaultRouterMap = [
     {
         path: '/newbook',
         component: newbook,
-        name: 'newbook',
+        name: '新增',
+    },
+    {
+        path: '/login',
+        component: login,
+        name: '登陆',
     },
 ];
 

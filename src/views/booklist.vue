@@ -1,12 +1,24 @@
 <template>
     <div>
         <van-nav-bar
-                right-text="新建"
+                left-text="新建"
+                @left-right="onClickLeft"
+                :right-text="rightClickStr"
                 @click-right="onClickRight"
         >
             <van-button slot="title" size="mini" plain style="border: 0" @click="queryBooklist" type="info" >novel.ineedthis</van-button>
         </van-nav-bar>
         <van-search placeholder="搜索" v-model="searchValue" />
+        <van-notice-bar
+                color="#1989fa"
+                background="#ecf9ff"
+                left-icon="info-o"
+                v-show="noticeShow"
+                mode="closeable"
+                @click="tocontentByNotice"
+        >
+            {{'继续阅读 '+noticeBean.bookName+' '+noticeBean.title}}
+        </van-notice-bar>
         <van-loading v-show="loading" size="24px">加载中...</van-loading>
         <van-index-bar :index-list="booklisttypes">
             <template v-for="(items,key) in booklistmap" >
@@ -18,11 +30,13 @@
                 </van-cell>
             </template>
         </van-index-bar>
+        <van-action-sheet  v-model="actionShow" :actions="actions" @select="actionSelect" />
     </div>
 </template>
 <script>
     import axios from 'axios';
     import {n_localstorage} from "../util/localstorage.js";
+    import {pageUrl} from "../util/pageUrl.js";
     export default {
         name: "booklist",
         data(){
@@ -32,6 +46,14 @@
               booklistmap:{},
               booklisttypes:[],
               searchValue:'',
+              rightClickStr:'登陆',
+
+              actionShow:false,
+              actions:[
+                  { name: '注销',type:'logout' }
+              ],
+              noticeShow:false,
+              noticeBean:{}
           }
         },
         watch: {
@@ -44,11 +66,33 @@
                         item._show = !v||v===''||item.bookName.indexOf(v) !== -1;
                     })
                 }
-            }},
+            },
+            '$route.path':function(newVal){
+                if(newVal === '/index'){
+                    this.queryLastRead();
+                }
+            }
+            },
+
         mounted() {
             this.queryBooklist();
+            this.queryUser();
         },
         methods:{
+            queryLastRead() {
+                const _this = this;
+                if (!_this.$simpleStore.state.userInfo) {
+                    return;
+                }
+                axios({
+                    url:pageUrl.queryLastRead
+                }).then(res=>{
+                    if (res.data.state === 'success' && res.data.obj) {
+                        _this.noticeBean = res.data.obj
+                        _this.noticeShow = true;
+                    }
+                });
+            },
             queryBooklist() {
                 const _this = this;
                 _this.loading = true
@@ -113,10 +157,72 @@
                     this.loading = false;
                 })
             },
-            onClickRight() {
+            onClickLeft() {
                 this.$router.push('/newbook').catch(() => {})
+            },
+            onClickRight(){
+                if (this.rightClickStr === '登陆') {
+                    if (this.$simpleStore.state.userInfo) {
+                        this.rightClickStr = this.$simpleStore.state.userInfo.userName
+                    }else {
+                        this.$router.replace('/login').catch(()=>{});
+                    }
+                }else {
+                    this.actionShow = true;
+                }
+            },
+            queryUser(){
+                const _this = this;
+                let i = -1;
+                let dsq = setInterval(function () {
+                    i += 1;
+                    let a = i % 3;
+                    if (a === 0) {
+                        str = '.';
+                    }
+                    let str = '';
+                    for (let j = 0; j <= a; j++) {
+                        str += '.';
+                    }
+                    _this.rightClickStr = str;
+                }, 1000);
+
+                axios({
+                    url:pageUrl.queryUserByToken
+                }).then(res=>{
+                    if (res.data.state === 'success' && res.data.obj) {
+                        _this.$simpleStore.setUserInfo(res.data.obj);
+                        _this.rightClickStr = res.data.obj.userName;
+                        this.queryLastRead();
+                    }else {
+                        _this.rightClickStr = '登陆';
+                    }
+                }).catch(()=>{
+                    _this.rightClickStr = '登陆';
+                }).finally(()=>{
+                    clearInterval(dsq)
+                })
+
+            },
+            actionSelect(event) {
+                if (event.type === 'logout') {
+                    axios({
+                        url:'intUser/logout'
+                    })
+                    this.rightClickStr = '登陆';
+                    this.$simpleStore.clearUserInfo();
+                }
+                this.actionShow = false;
+            },
+            tocontentByNotice() {
+                if (this.noticeBean) {
+                    var item = this.noticeBean
+                    var to ='/bookcontent/'+item.id+'/'+item.bookName+'/'+item.title
+                    this.$router.push(to).catch(() => {})
+                }
             }
-        }
+        },
+
     }
 </script>
 

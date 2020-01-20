@@ -54,6 +54,8 @@
 
 <script>
 
+    import {pageUrl} from "../util/pageUrl";
+
     let nextRecord = null;
 
     import axios from 'axios';
@@ -90,15 +92,12 @@
 
         },
         watch: {
-  /*          $route(){
-                this.bookContentId = this.$route.params.contentid
-                this.bookName = this.$route.params.name
-            },
             bookContentId() {
-                this.getCouponSelected();
-            }*/
+                //记录阅读记录
+                this.saveRecord();
+            }
         },
-            methods:{
+        methods:{
             /*获取内容*/
             getCouponSelected(){
                 const _this = this;
@@ -194,9 +193,23 @@
                     fontSize:_this.fontSize,
                 })
         },
-                toMl(to){
+            toMl(to){
                     this.$router.push(to).catch(() => {})
+                },
+            /*保存阅读记录*/
+            saveRecord(){
+                const _this = this;
+                if (!_this.bookContentBean) {
+                    return
                 }
+                axios({
+                    url:pageUrl.saveReadRecord,
+                    params:{
+                        bookId:_this.bookContentBean.bookId,
+                        bookContentId:_this.bookContentBean.id,
+                    }
+                });
+            }
         }
     }
 </script>
