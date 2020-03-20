@@ -9,6 +9,13 @@
             <van-button slot="title" size="mini" plain style="border: 0" @click="queryBooklist" type="info" >novel.ineedthis</van-button>
         </van-nav-bar>
         <van-search placeholder="搜索" v-model="searchValue" />
+        <van-overlay :show="overLayShow" @click="overLayShow = false" >
+            <div class="wrapper" @click="overLayShow = false">
+                <div class="block">
+                    点击右上角，选择在浏览器中打开
+                </div>
+            </div>
+        </van-overlay>
         <van-notice-bar
                 color="#1989fa"
                 background="#ecf9ff"
@@ -37,6 +44,26 @@
     import axios from 'axios';
     import {n_localstorage} from "../util/localstorage.js";
     import {pageUrl} from "../util/pageUrl.js";
+
+    var browser = {
+        versions: function () {
+            var u = navigator.userAgent;
+            return {         //移动终端浏览器版本信息
+                trident: u.indexOf('Trident') > -1, //IE内核
+                presto: u.indexOf('Presto') > -1, //opera内核
+                webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+                gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+                mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+                ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+                android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或uc浏览器
+                iPhone: u.indexOf('iPhone') > -1, //是否为iPhone或者QQHD浏览器
+                iPad: u.indexOf('iPad') > -1, //是否iPad
+                webApp: u.indexOf('Safari') == -1 //是否web应该程序，没有头部与底部
+            };
+        }(),
+        language: (navigator.browserLanguage || navigator.language).toLowerCase()
+    }
+
     export default {
         name: "booklist",
         data(){
@@ -53,7 +80,8 @@
                   { name: '注销',type:'logout' }
               ],
               noticeShow:false,
-              noticeBean:{}
+              noticeBean:{},
+              overLayShow:false
           }
         },
         watch: {
@@ -75,10 +103,39 @@
             },
 
         mounted() {
+            this.checkBrow();
             this.queryBooklist();
             this.queryUser();
         },
+
         methods:{
+            checkBrow(){ //检查浏览器
+                if (browser.versions.mobile) {//判断是否是移动设备打开。browser代码在下面
+                    var ua = navigator.userAgent.toLowerCase();//获取判断用的对象
+                    if (ua.match(/MicroMessenger/i) == "micromessenger") {
+                        //在微信中打开
+                        this.overLayShow = true;
+                    }
+                    if (ua.match(/WeiBo/i) == "weibo") {
+                        //在新浪微博客户端打开
+                        //在微信中打开
+                        this.overLayShow = true;
+                    }
+                    if (ua.match(/QQ/i) == "qq") {
+                        //在QQ空间打开
+                        //在微信中打开
+                        this.overLayShow = true;
+                    }
+                    if (browser.versions.ios) {
+                        //是否在IOS浏览器打开
+                    }
+                    if(browser.versions.android){
+                        //是否在安卓浏览器打开
+                    }
+                } else {
+                    //否则就是PC浏览器打开
+                }
+            },
             queryLastRead() {
                 const _this = this;
                 if (!_this.$simpleStore.state.userInfo) {
@@ -147,15 +204,19 @@
                         type:0
                     }
                 }).then(res=>{
-                    if (res.data.obj < 0) {
-                        _this.$Toast({
-                            message: '服务异常',
-                        });
-                    }else{
-                        _this.$Toast({
-                            message: '删除成功',
-                        });
-                        _this.queryBooklist();
+                    if (res.data.state === 'success') {
+                        if (res.data.obj < 0) {
+                            _this.$Toast({
+                                message: '服务异常',
+                            });
+                        }else{
+                            _this.$Toast({
+                                message: '删除成功',
+                            });
+                            _this.queryBooklist();
+                        }
+                    }else {
+                        _this.$Toast(res.data.message)
                     }
                 }).catch(()=>{
                     _this.$Toast({
@@ -235,5 +296,15 @@
 </script>
 
 <style scoped>
-
+    .wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    .block {
+        width: 200px;
+        height: 120px;
+        color: #fff;
+    }
 </style>

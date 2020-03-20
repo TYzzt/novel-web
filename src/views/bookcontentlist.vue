@@ -223,6 +223,8 @@
                         }else {
                             _this.$Toast('取消收藏成功')
                         }
+                    }else {
+                        _this.$Toast(res.data.message)
                     }
                 }).catch(()=>{
                     _this.$Toast('服务异常')
