@@ -7,6 +7,7 @@
         </van-overlay>
         <div>
             <div>
+                <van-icon name="wap-home-o" class="backIndex" @click="backToIndex"/>
                 <strong>{{bookContentBean.title}}</strong>
             </div>
         </div>
@@ -21,6 +22,7 @@
 
         <div class="content" v-if="bookContentBean">
             <div class="qhContent">
+
                 <button class="pre" @click="pre">上一章 </button>
                 <button @click="toMl('/bookcontentlist/'+bookContentBean.bookId+'/'+bookName)">目录</button>
                 <button class="next" @click="next"> 下一章</button>
@@ -209,6 +211,9 @@
                         bookContentId:_this.bookContentBean.id,
                     }
                 });
+            },
+            backToIndex() {
+                this.$router.push('/')
             }
         }
     }
@@ -247,6 +252,11 @@ input[type=datetime-local]{
        font-size: small;
     }
 
+    .backIndex{
+       float: left;
+        margin-left: 2px;
+        margin-top: 2px;
+    }
     .qhContent .pre{
         margin-right: 20px;
         margin-bottom: 40px;
